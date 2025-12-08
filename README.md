@@ -1,71 +1,109 @@
 # 📦 Linux2AppImage Converter
 
-Bash script to convert Linux packages into portable AppImage format.
+Bash scripts to convert Linux packages into portable AppImage format.
 
 ## 🎯 What it does
 
-Converts Linux packages into AppImage format, allowing you to run applications on any Linux distribution without installation.
+Converts Linux packages (.deb and .rpm) into AppImage format, allowing you to run applications on any Linux distribution without installation.
 
 ## 📋 Requirements
 
 ### Debian/Ubuntu
 ```bash
+# For DEB support
 sudo apt install dpkg-deb wget
+
+# For RPM support
+sudo apt install rpm2cpio cpio wget
 ```
 
 ### Arch Linux
 ```bash
+# For DEB support
 sudo pacman -S dpkg wget
+
+# For RPM support
+sudo pacman -S rpmextract cpio wget
 ```
 
 ### Fedora
 ```bash
+# For DEB support
 sudo dnf install dpkg wget
+
+# For RPM support (already included)
+sudo dnf install rpm cpio wget
 ```
 
 ## 🚀 Installation
 
-1. Download the script:
+1. Clone or download the scripts:
 ```bash
-wget https://your-repository.com/linux2appimage.sh
+git clone https://github.com/your-repo/linux2appimage.git
+cd linux2appimage
 ```
 
-2. Make it executable:
+2. Make scripts executable:
 ```bash
-chmod +x linux2appimage.sh
+chmod +x linux2appimage.sh deb2appimage.sh rpm2appimage.sh
 ```
 
 ## 💻 Usage
 
-### Basic syntax
+### Universal Wrapper (Recommended)
+
+The wrapper automatically detects the package type and calls the appropriate converter:
 
 ```bash
-./linux2appimage.sh <package linux>
+./linux2appimage.sh <package.deb|package.rpm>
 ```
 
-### Example
+**Examples:**
+```bash
+./linux2appimage.sh firefox_130.0-1_amd64.deb
+./linux2appimage.sh chromium-130.0-1.x86_64.rpm
+```
+
+### Direct Converters
+
+You can also use the format-specific converters directly:
 
 ```bash
-./linux2appimage.sh brave-browser_1.85.113_amd64.deb
+# For DEB packages
+./deb2appimage.sh package.deb
+
+# For RPM packages
+./rpm2appimage.sh package.rpm
 ```
 
-### What happens
+## 📁 Project Structure
 
-1. Extracts the package contents
-2. Automatically detects executable, icon and .desktop file
+```
+linux2appimage/
+├── linux2appimage.sh     # Universal wrapper (auto-detects format)
+├── deb2appimage.sh       # DEB to AppImage converter
+└── rpm2appimage.sh       # RPM to AppImage converter
+```
+
+## 🔄 Conversion Process
+
+1. Extracts package contents
+2. Detects executable, icon and .desktop file automatically
 3. Creates the necessary AppDir structure
 4. Downloads appimagetool (first time only)
 5. Generates the `.AppImage` file
 
 ## 📂 Output
 
-The script creates a file in the format:
+The scripts create files in the format:
 
 ```
 package-name-version-architecture.AppImage
 ```
 
-Example: `brave-browser-1.85.113-amd64.AppImage`
+**Examples:**
+- `brave-browser-1.85.113-amd64.AppImage`
+- `firefox-130.0-1-x86_64.AppImage`
 
 ## ▶️ Running the AppImage
 
@@ -137,15 +175,21 @@ sudo dnf install gtk3 glib2
 
 ### Executable not found
 
-The script searches in `/usr/bin` and `/opt`. If it fails, check manually:
+The scripts search in `/usr/bin`, `/usr/sbin`, `/opt`, and `/bin`. If it fails, check manually:
 
+**For DEB:**
 ```bash
 dpkg-deb -c package.deb | grep bin
 ```
 
+**For RPM:**
+```bash
+rpm -qpl package.rpm | grep bin
+```
+
 ### Multiple architecture error
 
-The script automatically removes libraries from conflicting architectures. If it persists, verify the package is compatible with your architecture.
+The scripts automatically remove libraries from conflicting architectures. If it persists, verify the package is compatible with your architecture.
 
 ### AppImage won't execute
 
@@ -161,25 +205,40 @@ chmod +x file.AppImage
 ./file.AppImage --appimage-extract-and-run
 ```
 
+### Converter script not found
+
+Make sure all three scripts are in the same directory:
+```bash
+ls -l linux2appimage.sh deb2appimage.sh rpm2appimage.sh
+```
+
 ## 📝 Notes
 
 - The created AppImage is portable but may require basic system libraries
 - Packages with many dependencies might not work perfectly
 - Test the AppImage before distributing
+- Each format has its own specialized converter for better compatibility
 
-## 🤝 Limitations
+## 🎨 Supported Formats
 
-- Does not automatically include dependencies (only package contents)
-- Complex applications may need manual adjustments
-- Best for self-contained applications
+### ✅ Currently Supported
+- **DEB** - Debian, Ubuntu, Linux Mint, Pop!_OS, etc.
+- **RPM** - Fedora, RHEL, CentOS, openSUSE, etc.
 
-## 🚀 Future Plans
+### 🚀 Future Plans
 
 Support for additional package formats:
-- RPM packages
 - Snap packages
 - Flatpak packages
 - tar.gz archives
+- pacman packages
+
+## 🤝 Advantages
+
+- **Universal wrapper** - one command for any package type
+- **Automatic detection** - no need to specify format
+- **Modular design** - easy to add new formats
+- **Cross-distribution** - works on Debian, Arch, Fedora, etc.
 
 ## 📄 License
 
